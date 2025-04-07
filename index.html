@@ -7,33 +7,9 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="login-screen" class="screen">
-    <h1>Meus Hábitos</h1>
-    <input type="password" id="password" placeholder="Digite sua senha" />
-    <button id="login-btn">Entrar</button>
-    <p id="login-error" class="erro"></p>
-  </div>
-
-  <div id="main-screen" class="screen hidden">
-    <h2>Hábitos de Hoje</h2>
-    <div class="habits-container">
-      <label><input type="checkbox" class="habit-check" data-habit="agua"> Beber Água</label>
-      <label><input type="checkbox" class="habit-check" data-habit="academia"> Academia</label>
-      <label><input type="checkbox" class="habit-check" data-habit="meditacao"> Meditação</label>
-      <label><input type="checkbox" class="habit-check" data-habit="leitura"> Leitura</label>
-      <label><input type="checkbox" class="habit-check" data-habit="lixo"> Entregar Lixo</label>
-      <label><input type="checkbox" class="habit-check" data-habit="cozinha"> Limpar Cozinha</label>
-    </div>
-
-    <h3>Gráfico de Hoje</h3>
-    <canvas id="habitChart" width="400" height="200"></canvas>
-
-    <p id="alerta-nao-cumprido" class="erro"></p>
-    <button id="reset-btn">Resetar Dia</button>
-    <button id="logout-btn">Sair</button>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <div id="app"></div>
+  <script src="data.js"></script>
+  <script src="utils.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

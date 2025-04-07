@@ -1,27 +1,26 @@
-// Funções utilitárias futuras aqui
 // utils.js
 
-// Formata a data no padrão YYYY-MM-DD
-export function formatDate(date) {
-  return date.toISOString().split('T')[0];
+export function formatarData(data) {
+  const d = new Date(data);
+  const dia = d.getDate().toString().padStart(2, '0');
+  const mes = (d.getMonth() + 1).toString().padStart(2, '0');
+  const ano = d.getFullYear();
+  return `${ano}-${mes}-${dia}`;
 }
 
-// Gera um array com as datas do mês atual
-export function getAllDaysOfMonth(year, month) {
-  const days = [];
-  const date = new Date(year, month, 1);
-  while (date.getMonth() === month) {
-    days.push(new Date(date));
-    date.setDate(date.getDate() + 1);
+export function obterHoje() {
+  return formatarData(new Date());
+}
+
+export function contarFrequencia(habitos, mes, ano) {
+  const frequencia = {};
+  for (const dia in habitos) {
+    const [a, m] = dia.split('-');
+    if (parseInt(a) === ano && parseInt(m) === mes) {
+      for (const item of habitos[dia]) {
+        frequencia[item.nome] = (frequencia[item.nome] || 0) + (item.feito ? 1 : 0);
+      }
+    }
   }
-  return days;
-}
-
-// Retorna o nome do mês
-export function getMonthName(monthIndex) {
-  const meses = [
-    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-  ];
-  return meses[monthIndex] || '';
+  return frequencia;
 }

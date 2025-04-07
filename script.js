@@ -1,5 +1,5 @@
 
-const SENHA = "1234"; // Altere a senha aqui se quiser
+const SENHA = "1234"; // você pode mudar essa senha aqui
 
 document.addEventListener("DOMContentLoaded", () => {
   const loginBtn = document.getElementById("login-btn");

@@ -1,1 +1,1 @@
-
+// Funções utilitárias futuras aqui

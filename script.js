@@ -1,5 +1,13 @@
 
-const SENHA = "1234"; // Altere para a senha que quiser
+const SENHA = "1234"; // Altere a senha aqui se quiser
+
+document.addEventListener("DOMContentLoaded", () => {
+  const loginBtn = document.getElementById("login-btn");
+  const logoutBtn = document.getElementById("logout-btn");
+
+  loginBtn.addEventListener("click", login);
+  logoutBtn.addEventListener("click", logout);
+});
 
 function login() {
   const senha = document.getElementById("password").value;
@@ -19,4 +27,3 @@ function logout() {
   document.getElementById("login-screen").classList.remove("hidden");
   document.getElementById("password").value = "";
 }
-

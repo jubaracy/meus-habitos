@@ -1,52 +1,53 @@
 // utils.js
 
-function formatarData(data) {
-  return data.toISOString().split('T')[0];
-}
-
-function obterDataAtual() {
-  return formatarData(new Date());
-}
-
-function gerarIdUnico() {
+// Gera um ID único simples
+function gerarId() {
   return '_' + Math.random().toString(36).substr(2, 9);
 }
 
-function mostrarAlerta(mensagem) {
-  const alerta = document.createElement('div');
-  alerta.className = 'alerta';
-  alerta.textContent = mensagem;
-  document.body.prepend(alerta);
-  setTimeout(() => alerta.remove(), 4000);
+// Retorna a data atual no formato YYYY-MM-DD
+function dataAtual() {
+  return new Date().toISOString().split('T')[0];
 }
 
-function agruparPorMes(dados) {
-  const agrupado = {};
-  Object.entries(dados).forEach(([data, habitos]) => {
-    const [ano, mes] = data.split('-');
-    const chaveMes = `${ano}-${mes}`;
-    if (!agrupado[chaveMes]) agrupado[chaveMes] = [];
-    agrupado[chaveMes].push({ data, habitos });
-  });
-  return agrupado;
+// Retorna o nome do mês a partir do número (0 a 11)
+function nomeMes(mes) {
+  const nomes = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  ];
+  return nomes[mes];
 }
 
-function contarFrequenciaMensal(historicoMensal, habitosBase) {
-  const frequencia = {};
-  habitosBase.forEach(h => frequencia[h.nome] = 0);
-  historicoMensal.forEach(({ habitos }) => {
-    habitos.forEach(h => {
-      if (h.feito && frequencia[h.nome] !== undefined) {
-        frequencia[h.nome]++;
-      }
-    });
-  });
-  return frequencia;
+// Retorna o número de dias do mês
+function diasNoMes(ano, mes) {
+  return new Date(ano, mes + 1, 0).getDate();
 }
 
-function criarElemento(tag, classe, texto) {
-  const el = document.createElement(tag);
-  if (classe) el.className = classe;
-  if (texto) el.textContent = texto;
-  return el;
+// Verifica se duas datas são iguais
+function datasIguais(d1, d2) {
+  return new Date(d1).toDateString() === new Date(d2).toDateString();
 }
+
+// Valida o login
+function validarLogin(username, senha) {
+  const credenciais = JSON.parse(localStorage.getItem('credenciais')) || { username: 'admin', senha: '1234' };
+  return username === credenciais.username && senha === credenciais.senha;
+}
+
+// Salva novas credenciais
+function salvarNovaSenha(novaSenha) {
+  const credenciais = JSON.parse(localStorage.getItem('credenciais')) || {};
+  credenciais.senha = novaSenha;
+  localStorage.setItem('credenciais', JSON.stringify(credenciais));
+}
+
+// Exporta os dados como JSON
+function exportarDados(dados) {
+  const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'meus_habitos_dados.json';
+  link.click();
+}
+

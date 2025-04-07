@@ -1,26 +1,32 @@
 // utils.js
 
+import Chart from 'chart.js/auto';
+
 export function formatarData(data) {
-  const d = new Date(data);
-  const dia = d.getDate().toString().padStart(2, '0');
-  const mes = (d.getMonth() + 1).toString().padStart(2, '0');
-  const ano = d.getFullYear();
-  return `${ano}-${mes}-${dia}`;
+  return data.toISOString().split('T')[0];
 }
 
-export function obterHoje() {
-  return formatarData(new Date());
-}
+export function gerarGraficoMensal(dados) {
+  const dias = Object.keys(dados).sort();
+  const contagem = {};
 
-export function contarFrequencia(habitos, mes, ano) {
-  const frequencia = {};
-  for (const dia in habitos) {
-    const [a, m] = dia.split('-');
-    if (parseInt(a) === ano && parseInt(m) === mes) {
-      for (const item of habitos[dia]) {
-        frequencia[item.nome] = (frequencia[item.nome] || 0) + (item.feito ? 1 : 0);
-      }
+  dias.forEach(dia => {
+    dados[dia].forEach(h => {
+      if (!contagem[h.nome]) contagem[h.nome] = 0;
+      if (h.feito) contagem[h.nome]++;
+    });
+  });
+
+  const ctx = document.getElementById("graficoFrequencia");
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: Object.keys(contagem),
+      datasets: [{
+        label: "% de Conclusão no Mês",
+        data: Object.values(contagem),
+        backgroundColor: "#333"
+      }]
     }
-  }
-  return frequencia;
+  });
 }

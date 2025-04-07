@@ -1,113 +1,107 @@
+// DOM Elements
+const loginContainer = document.getElementById("login-container");
+const appContainer = document.getElementById("app-container");
+const loginForm = document.getElementById("login-form");
+const userInput = document.getElementById("usuario");
+const passInput = document.getElementById("senha");
+const listaHabitos = document.getElementById("lista-habitos");
+const grafico = document.getElementById("grafico-diario");
+const alertaContainer = document.getElementById("alertas");
+const historicoLista = document.getElementById("historico-lista");
+const btnExportar = document.getElementById("btn-exportar");
+const btnTrocarSenha = document.getElementById("btn-trocar-senha");
+const inputNovaSenha = document.getElementById("nova-senha");
 
-// script.js
-import { salvarDados, carregarDados, verificarSenha, mudarSenha } from './data.js';
-import { formatarData, gerarGraficoMensal } from './utils.js';
+// Estado
+let dataAtual = new Date().toISOString().split("T")[0];
+let dados = {};
 
-const app = document.getElementById('app');
-const hoje = formatarData(new Date());
-let dados = carregarDados();
+// Funções
+function atualizarTela() {
+  listaHabitos.innerHTML = "";
+  alertaContainer.innerHTML = "";
 
-const habitosFixos = [
-  { nome: 'Beber Água', categoria: 'Saúde' },
-  { nome: 'Academia', categoria: 'Saúde' },
-  { nome: 'Meditação', categoria: 'Bem-estar' },
-  { nome: 'Leitura', categoria: 'Pessoal' },
-  { nome: 'Entregar lixo', categoria: 'Casa' },
-  { nome: 'Limpar cozinha', categoria: 'Casa' }
-];
+  const habitosHoje = dados[dataAtual] || [];
+  const naoFeitos = habitosHoje.filter(h => !h.feito);
 
-function renderLogin() {
-  app.innerHTML = `
-    <h2>Login</h2>
-    <input type="password" id="senha" placeholder="Digite sua senha" />
-    <button onclick="">Entrar</button>
-    <p id="erro" class="alerta"></p>
-  `;
-  const btn = app.querySelector('button');
-  btn.addEventListener('click', () => {
-    const senha = document.getElementById('senha').value;
-    if (verificarSenha(senha)) renderApp();
-    else document.getElementById('erro').innerText = 'Senha incorreta';
-  });
-}
-
-function renderApp() {
-  if (!dados[hoje]) {
-    dados[hoje] = habitosFixos.map(h => ({ ...h, feito: false }));
-    salvarDados(dados);
-  }
-
-  app.innerHTML = `
-    <h1>Meus Hábitos - ${hoje}</h1>
-    <div id="lista"></div>
-    <button onclick="location.reload()">Salvar</button>
-    <button onclick="renderHistorico()">Ver Histórico</button>
-    <button onclick="renderTrocaSenha()">Trocar Senha</button>
-    <canvas id="graficoFrequencia"></canvas>
-  `;
-
-  const lista = document.getElementById('lista');
-  dados[hoje].forEach((h, i) => {
-    const div = document.createElement('div');
-    div.className = 'habito';
+  habitosHoje.forEach((habito, index) => {
+    const div = document.createElement("div");
     div.innerHTML = `
-      <label>
-        <input type="checkbox" ${h.feito ? 'checked' : ''} onchange=""> ${h.nome} <small>(${h.categoria})</small>
-      </label>
+      <span class="${habito.feito ? "feito" : ""}">${habito.nome}</span>
+      <button onclick="marcarFeito(${index})">${habito.feito ? "Desfazer" : "Feito"}</button>
     `;
-    div.querySelector('input').addEventListener('change', e => {
-      dados[hoje][i].feito = e.target.checked;
-      salvarDados(dados);
-    });
-    lista.appendChild(div);
+    listaHabitos.appendChild(div);
   });
 
-  const algumNaoFeito = dados[hoje].some(h => !h.feito);
-  if (algumNaoFeito) {
-    const alerta = document.createElement('p');
-    alerta.className = 'alerta';
-    alerta.innerText = 'Você ainda não completou todos os hábitos de hoje!';
-    app.appendChild(alerta);
+  if (naoFeitos.length > 0) {
+    const alerta = document.createElement("div");
+    alerta.className = "alerta";
+    alerta.innerText = `Você ainda não completou ${naoFeitos.length} hábito(s) hoje.`;
+    alertaContainer.appendChild(alerta);
   }
 
-  gerarGraficoMensal(dados);
+  desenharGrafico();
+  mostrarHistorico();
 }
 
-function renderHistorico() {
-  app.innerHTML = `<h2>Histórico Mensal</h2><div id="historico"></div><button onclick="renderApp()">Voltar</button>`;
-  const div = document.getElementById('historico');
-
-  Object.keys(dados).sort().forEach(data => {
-    const diaDiv = document.createElement('div');
-    diaDiv.innerHTML = `<strong>${data}</strong><ul></ul>`;
-    const ul = diaDiv.querySelector('ul');
-    dados[data].forEach(h => {
-      const li = document.createElement('li');
-      li.innerText = `${h.nome} - ${h.feito ? '✔️' : '❌'}`;
-      ul.appendChild(li);
-    });
-    div.appendChild(diaDiv);
-  });
+function marcarFeito(index) {
+  dados[dataAtual][index].feito = !dados[dataAtual][index].feito;
+  salvarDados(dados);
+  atualizarTela();
 }
 
-function renderTrocaSenha() {
-  app.innerHTML = `
-    <h2>Trocar Senha</h2>
-    <input type="password" id="novaSenha" placeholder="Nova senha" />
-    <button onclick="">Salvar</button>
-    <button onclick="renderApp()">Cancelar</button>
+function desenharGrafico() {
+  const total = dados[dataAtual]?.length || 0;
+  const feitos = dados[dataAtual]?.filter(h => h.feito).length || 0;
+
+  grafico.innerHTML = `
+    <h3>Progresso do Dia</h3>
+    <progress value="${feitos}" max="${total}"></progress>
+    <p>${feitos} de ${total} hábitos concluídos</p>
   `;
+}
 
-  app.querySelector('button').addEventListener('click', () => {
-    const nova = document.getElementById('novaSenha').value;
-    if (nova.length < 3) alert('Senha muito curta');
-    else {
-      mudarSenha(nova);
-      alert('Senha alterada');
-      renderApp();
-    }
+function mostrarHistorico() {
+  historicoLista.innerHTML = "";
+  const dias = Object.keys(dados).sort().reverse();
+
+  dias.forEach(dia => {
+    const div = document.createElement("div");
+    const feitos = dados[dia].filter(h => h.feito).length;
+    const total = dados[dia].length;
+    div.innerHTML = `<strong>${dia}</strong>: ${feitos}/${total} hábitos`;
+    historicoLista.appendChild(div);
   });
 }
 
-renderLogin();
+function entrar(e) {
+  e.preventDefault();
+  const user = userInput.value;
+  const senha = passInput.value;
+  if (validarLogin(user, senha)) {
+    loginContainer.style.display = "none";
+    appContainer.style.display = "block";
+    dados = carregarDados();
+    atualizarTela();
+  } else {
+    alert("Usuário ou senha inválidos");
+  }
+}
+
+function trocarSenhaUsuario() {
+  const nova = inputNovaSenha.value;
+  if (nova) {
+    trocarSenha(nova);
+    alert("Senha alterada com sucesso");
+    inputNovaSenha.value = "";
+  }
+}
+
+// Eventos
+loginForm.addEventListener("submit", entrar);
+btnExportar.addEventListener("click", exportarDados);
+btnTrocarSenha.addEventListener("click", trocarSenhaUsuario);
+
+// Inicialização
+inicializarPadrao();
 

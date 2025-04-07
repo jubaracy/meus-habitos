@@ -9,4 +9,4 @@ const habitosBase = [
   { nome: 'Limpar cozinha', feito: false, categoria: 'Casa' }
 ];
 
-
+export { habitosBase };

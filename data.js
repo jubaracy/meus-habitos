@@ -1,7 +1,7 @@
 
-const STORAGE_KEY = "meus-habitos";
-const STORAGE_USER = "meus-habitos-user";
-const STORAGE_PASSWORD = "meus-habitos-password";
+// data.js
+
+const STORAGE_KEY = 'meusHabitos';
 
 function salvarDados(dados) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
@@ -9,52 +9,62 @@ function salvarDados(dados) {
 
 function carregarDados() {
   const dados = localStorage.getItem(STORAGE_KEY);
-  return dados ? JSON.parse(dados) : {};
+  if (dados) {
+    return JSON.parse(dados);
+  }
+  return {
+    senha: '1234',
+    habitos: [
+      { nome: 'Beber Água', categoria: 'Saúde' },
+      { nome: 'Academia', categoria: 'Saúde' },
+      { nome: 'Meditação', categoria: 'Bem-estar' },
+      { nome: 'Leitura', categoria: 'Pessoal' },
+      { nome: 'Entregar lixo', categoria: 'Casa' },
+      { nome: 'Limpar cozinha', categoria: 'Casa' }
+    ],
+    historico: {}
+  };
 }
 
-function salvarUsuario(user, senha) {
-  localStorage.setItem(STORAGE_USER, user);
-  localStorage.setItem(STORAGE_PASSWORD, senha);
+function registrarConclusao(habito, data) {
+  const dados = carregarDados();
+  if (!dados.historico[data]) {
+    dados.historico[data] = [];
+  }
+  if (!dados.historico[data].includes(habito)) {
+    dados.historico[data].push(habito);
+    salvarDados(dados);
+  }
 }
 
-function validarLogin(user, senha) {
-  return (
-    user === localStorage.getItem(STORAGE_USER) &&
-    senha === localStorage.getItem(STORAGE_PASSWORD)
-  );
+function removerConclusao(habito, data) {
+  const dados = carregarDados();
+  if (dados.historico[data]) {
+    dados.historico[data] = dados.historico[data].filter(h => h !== habito);
+    salvarDados(dados);
+  }
 }
 
-function trocarSenha(novaSenha) {
-  localStorage.setItem(STORAGE_PASSWORD, novaSenha);
+function alterarSenha(novaSenha) {
+  const dados = carregarDados();
+  dados.senha = novaSenha;
+  salvarDados(dados);
+}
+
+function atualizarHabitos(novosHabitos) {
+  const dados = carregarDados();
+  dados.habitos = novosHabitos;
+  salvarDados(dados);
 }
 
 function exportarDados() {
   const dados = carregarDados();
-  const blob = new Blob([JSON.stringify(dados, null, 2)], { type: "application/json" });
+  const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
+  const a = document.createElement('a');
   a.href = url;
-  a.download = "meus-habitos-dados.json";
+  a.download = 'meus_habitos_dados.json';
   a.click();
   URL.revokeObjectURL(url);
 }
 
-function inicializarPadrao() {
-  if (!localStorage.getItem(STORAGE_USER)) {
-    salvarUsuario("admin", "1234");
-  }
-
-  const dados = carregarDados();
-  const hoje = new Date().toISOString().split("T")[0];
-  if (!dados[hoje]) {
-    dados[hoje] = [
-      { nome: "Beber Água", feito: false, categoria: "Saúde" },
-      { nome: "Academia", feito: false, categoria: "Saúde" },
-      { nome: "Meditação", feito: false, categoria: "Bem-estar" },
-      { nome: "Leitura", feito: false, categoria: "Pessoal" },
-      { nome: "Entregar lixo", feito: false, categoria: "Casa" },
-      { nome: "Limpar cozinha", feito: false, categoria: "Casa" }
-    ];
-    salvarDados(dados);
-  }
-}

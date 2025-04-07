@@ -1,107 +1,102 @@
-// DOM Elements
-const loginContainer = document.getElementById("login-container");
-const appContainer = document.getElementById("app-container");
-const loginForm = document.getElementById("login-form");
-const userInput = document.getElementById("usuario");
-const passInput = document.getElementById("senha");
-const listaHabitos = document.getElementById("lista-habitos");
-const grafico = document.getElementById("grafico-diario");
-const alertaContainer = document.getElementById("alertas");
-const historicoLista = document.getElementById("historico-lista");
-const btnExportar = document.getElementById("btn-exportar");
-const btnTrocarSenha = document.getElementById("btn-trocar-senha");
-const inputNovaSenha = document.getElementById("nova-senha");
+// script.js
 
-// Estado
-let dataAtual = new Date().toISOString().split("T")[0];
-let dados = {};
+import { salvarDados, carregarDados, verificarSenha, trocarSenha, inicializarDados } from './data.js';
+import { obterDataAtual, mostrarAlerta, agruparPorMes, contarFrequenciaMensal, criarElemento } from './utils.js';
 
-// Funções
-function atualizarTela() {
-  listaHabitos.innerHTML = "";
-  alertaContainer.innerHTML = "";
+let dataAtual = obterDataAtual();
+let dados = carregarDados();
 
-  const habitosHoje = dados[dataAtual] || [];
-  const naoFeitos = habitosHoje.filter(h => !h.feito);
+const loginContainer = document.getElementById('login-container');
+const appContainer = document.getElementById('app-container');
+const senhaInput = document.getElementById('senha');
+const btnLogin = document.getElementById('btn-login');
+const dataSpan = document.getElementById('data-atual');
+const listaHabitos = document.getElementById('lista-habitos');
+const graficoContainer = document.getElementById('grafico');
+const historicoLista = document.getElementById('historico-lista');
+const formNovaSenha = document.getElementById('form-senha');
+const inputNovaSenha = document.getElementById('nova-senha');
+const btnTrocarSenha = document.getElementById('btn-trocar-senha');
+const graficoMensal = document.getElementById('grafico-mensal');
 
-  habitosHoje.forEach((habito, index) => {
-    const div = document.createElement("div");
-    div.innerHTML = `
-      <span class="${habito.feito ? "feito" : ""}">${habito.nome}</span>
-      <button onclick="marcarFeito(${index})">${habito.feito ? "Desfazer" : "Feito"}</button>
-    `;
+inicializarDados();
+
+btnLogin.addEventListener('click', () => {
+  if (verificarSenha(senhaInput.value)) {
+    loginContainer.style.display = 'none';
+    appContainer.style.display = 'block';
+    exibirDashboard();
+  } else {
+    mostrarAlerta('Senha incorreta!');
+  }
+});
+
+function exibirDashboard() {
+  dataAtual = obterDataAtual();
+  dataSpan.textContent = dataAtual;
+  renderizarHabitos();
+  renderizarHistorico();
+  renderizarGrafico();
+}
+
+function renderizarHabitos() {
+  listaHabitos.innerHTML = '';
+  const habitosDia = dados.historico[dataAtual] || JSON.parse(JSON.stringify(dados.habitos));
+  habitosDia.forEach((habito, index) => {
+    const div = criarElemento('div');
+    const label = criarElemento('span', habito.feito ? 'feito' : '', habito.nome);
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = habito.feito;
+    checkbox.addEventListener('change', () => {
+      habito.feito = checkbox.checked;
+      dados.historico[dataAtual] = habitosDia;
+      salvarDados(dados);
+      renderizarHabitos();
+    });
+    div.append(label, checkbox);
     listaHabitos.appendChild(div);
   });
-
-  if (naoFeitos.length > 0) {
-    const alerta = document.createElement("div");
-    alerta.className = "alerta";
-    alerta.innerText = `Você ainda não completou ${naoFeitos.length} hábito(s) hoje.`;
-    alertaContainer.appendChild(alerta);
-  }
-
-  desenharGrafico();
-  mostrarHistorico();
-}
-
-function marcarFeito(index) {
-  dados[dataAtual][index].feito = !dados[dataAtual][index].feito;
+  dados.historico[dataAtual] = habitosDia;
   salvarDados(dados);
-  atualizarTela();
 }
 
-function desenharGrafico() {
-  const total = dados[dataAtual]?.length || 0;
-  const feitos = dados[dataAtual]?.filter(h => h.feito).length || 0;
-
-  grafico.innerHTML = `
-    <h3>Progresso do Dia</h3>
-    <progress value="${feitos}" max="${total}"></progress>
-    <p>${feitos} de ${total} hábitos concluídos</p>
-  `;
-}
-
-function mostrarHistorico() {
-  historicoLista.innerHTML = "";
-  const dias = Object.keys(dados).sort().reverse();
-
-  dias.forEach(dia => {
-    const div = document.createElement("div");
-    const feitos = dados[dia].filter(h => h.feito).length;
-    const total = dados[dia].length;
-    div.innerHTML = `<strong>${dia}</strong>: ${feitos}/${total} hábitos`;
-    historicoLista.appendChild(div);
+function renderizarHistorico() {
+  historicoLista.innerHTML = '';
+  const historicoOrdenado = Object.entries(dados.historico).sort().reverse();
+  historicoOrdenado.forEach(([data, habitos]) => {
+    const li = criarElemento('li', null, `${data} - ${habitos.filter(h => h.feito).length}/${habitos.length} hábitos completos`);
+    historicoLista.appendChild(li);
   });
 }
 
-function entrar(e) {
-  e.preventDefault();
-  const user = userInput.value;
-  const senha = passInput.value;
-  if (validarLogin(user, senha)) {
-    loginContainer.style.display = "none";
-    appContainer.style.display = "block";
-    dados = carregarDados();
-    atualizarTela();
-  } else {
-    alert("Usuário ou senha inválidos");
-  }
+function renderizarGrafico() {
+  graficoMensal.innerHTML = '';
+  const agrupado = agruparPorMes(dados.historico);
+  const mesAtual = dataAtual.slice(0, 7);
+  const historicoMes = agrupado[mesAtual] || [];
+  const frequencia = contarFrequenciaMensal(historicoMes, dados.habitos);
+  Object.entries(frequencia).forEach(([nome, valor]) => {
+    const linha = criarElemento('div');
+    const label = criarElemento('span', null, `${nome}:`);
+    const barra = criarElemento('div');
+    barra.style.height = '10px';
+    barra.style.backgroundColor = '#000';
+    barra.style.width = `${valor * 10}px`;
+    barra.style.margin = '4px 0';
+    linha.append(label, barra);
+    graficoMensal.appendChild(linha);
+  });
 }
 
-function trocarSenhaUsuario() {
-  const nova = inputNovaSenha.value;
-  if (nova) {
-    trocarSenha(nova);
-    alert("Senha alterada com sucesso");
-    inputNovaSenha.value = "";
+btnTrocarSenha.addEventListener('click', () => {
+  const novaSenha = inputNovaSenha.value.trim();
+  if (novaSenha.length < 4) {
+    mostrarAlerta('Senha muito curta.');
+    return;
   }
-}
-
-// Eventos
-loginForm.addEventListener("submit", entrar);
-btnExportar.addEventListener("click", exportarDados);
-btnTrocarSenha.addEventListener("click", trocarSenhaUsuario);
-
-// Inicialização
-inicializarPadrao();
+  trocarSenha(novaSenha);
+  mostrarAlerta('Senha atualizada com sucesso!');
+  inputNovaSenha.value = '';
+});
 

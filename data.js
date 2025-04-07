@@ -1,70 +1,70 @@
 
 // data.js
 
-const STORAGE_KEY = 'meusHabitos';
-
-function salvarDados(dados) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
-}
-
-function carregarDados() {
-  const dados = localStorage.getItem(STORAGE_KEY);
-  if (dados) {
-    return JSON.parse(dados);
-  }
-  return {
-    senha: '1234',
+// Estrutura dos dados armazenados localmente
+function obterDados() {
+  const dados = localStorage.getItem('meus_habitos_dados');
+  return dados ? JSON.parse(dados) : {
     habitos: [
-      { nome: 'Beber Água', categoria: 'Saúde' },
-      { nome: 'Academia', categoria: 'Saúde' },
-      { nome: 'Meditação', categoria: 'Bem-estar' },
-      { nome: 'Leitura', categoria: 'Pessoal' },
-      { nome: 'Entregar lixo', categoria: 'Casa' },
-      { nome: 'Limpar cozinha', categoria: 'Casa' }
+      { id: gerarId(), nome: 'Beber Água', categoria: 'Saúde' },
+      { id: gerarId(), nome: 'Academia', categoria: 'Saúde' },
+      { id: gerarId(), nome: 'Meditação', categoria: 'Bem-estar' },
+      { id: gerarId(), nome: 'Leitura', categoria: 'Pessoal' },
+      { id: gerarId(), nome: 'Entregar lixo', categoria: 'Casa' },
+      { id: gerarId(), nome: 'Limpar cozinha', categoria: 'Casa' }
     ],
     historico: {}
   };
 }
 
-function registrarConclusao(habito, data) {
-  const dados = carregarDados();
+function salvarDados(dados) {
+  localStorage.setItem('meus_habitos_dados', JSON.stringify(dados));
+}
+
+function marcarComoFeito(data, habitoId) {
+  const dados = obterDados();
   if (!dados.historico[data]) {
     dados.historico[data] = [];
   }
-  if (!dados.historico[data].includes(habito)) {
-    dados.historico[data].push(habito);
-    salvarDados(dados);
+  if (!dados.historico[data].includes(habitoId)) {
+    dados.historico[data].push(habitoId);
   }
+  salvarDados(dados);
 }
 
-function removerConclusao(habito, data) {
-  const dados = carregarDados();
+function desmarcarFeito(data, habitoId) {
+  const dados = obterDados();
   if (dados.historico[data]) {
-    dados.historico[data] = dados.historico[data].filter(h => h !== habito);
-    salvarDados(dados);
+    dados.historico[data] = dados.historico[data].filter(id => id !== habitoId);
+    if (dados.historico[data].length === 0) {
+      delete dados.historico[data];
+    }
   }
-}
-
-function alterarSenha(novaSenha) {
-  const dados = carregarDados();
-  dados.senha = novaSenha;
   salvarDados(dados);
 }
 
-function atualizarHabitos(novosHabitos) {
-  const dados = carregarDados();
-  dados.habitos = novosHabitos;
+function adicionarHabito(nome, categoria) {
+  const dados = obterDados();
+  dados.habitos.push({ id: gerarId(), nome, categoria });
   salvarDados(dados);
 }
 
-function exportarDados() {
-  const dados = carregarDados();
-  const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'meus_habitos_dados.json';
-  a.click();
-  URL.revokeObjectURL(url);
+function removerHabito(id) {
+  const dados = obterDados();
+  dados.habitos = dados.habitos.filter(h => h.id !== id);
+  for (let data in dados.historico) {
+    dados.historico[data] = dados.historico[data].filter(hid => hid !== id);
+  }
+  salvarDados(dados);
+}
+
+function editarHabito(id, novoNome, novaCategoria) {
+  const dados = obterDados();
+  const habito = dados.habitos.find(h => h.id === id);
+  if (habito) {
+    habito.nome = novoNome;
+    habito.categoria = novaCategoria;
+  }
+  salvarDados(dados);
 }
 

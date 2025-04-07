@@ -8,59 +8,57 @@
 </head>
 <body>
   <div id="login-container">
-    <h1>Meus Hábitos</h1>
-    <input type="password" id="senha" placeholder="Digite sua senha" />
-    <button id="entrar">Entrar</button>
-    <p id="erro-senha"></p>
+    <h1>Login</h1>
+    <input type="password" id="senha" placeholder="Digite a senha">
+    <button onclick="login()">Entrar</button>
   </div>
 
-  <div id="app-container" style="display: none">
-    <header>
-      <h2>Meus Hábitos</h2>
-      <button id="btn-logout">Sair</button>
-    </header>
+  <div id="app-container" style="display:none">
+    <h1>Meus Hábitos</h1>
 
-    <section id="habitos-dia">
-      <h3>Hábitos de Hoje</h3>
+    <section>
+      <h2>Hábitos de hoje</h2>
+      <div id="alerta"></div>
       <div id="lista-habitos"></div>
+      <button onclick="salvarHoje()">Salvar dia</button>
     </section>
 
-    <section id="historico">
-      <h3>Histórico</h3>
-      <div id="lista-historico"></div>
+    <section>
+      <h2>Histórico</h2>
+      <div id="historico"></div>
     </section>
 
-    <section id="grafico">
-      <h3>Frequência Mensal</h3>
-      <canvas id="graficoFrequencia" width="400" height="200"></canvas>
+    <section>
+      <h2>Gráfico mensal</h2>
+      <canvas id="grafico"></canvas>
     </section>
 
-    <section id="editar-habitos">
-      <h3>Editar Hábitos</h3>
-      <input type="text" id="novo-habito" placeholder="Novo hábito" />
+    <section>
+      <h2>Editar hábitos</h2>
+      <input type="text" id="novo-habito" placeholder="Novo hábito">
       <select id="categoria-habito">
         <option value="Saúde">Saúde</option>
         <option value="Casa">Casa</option>
         <option value="Pessoal">Pessoal</option>
       </select>
-      <button id="btn-adicionar-habito">Adicionar</button>
-      <ul id="habitos-existentes"></ul>
+      <button onclick="adicionarHabito()">Adicionar</button>
+      <div id="editar-habitos"></div>
     </section>
 
-    <section id="senha">
-      <h3>Trocar Senha</h3>
-      <input type="password" id="senha-atual" placeholder="Senha atual" />
-      <input type="password" id="nova-senha" placeholder="Nova senha" />
-      <button id="btn-trocar-senha">Atualizar Senha</button>
-      <p id="mensagem-senha"></p>
+    <section>
+      <h2>Trocar senha</h2>
+      <input type="password" id="senha-antiga" placeholder="Senha atual">
+      <input type="password" id="nova-senha" placeholder="Nova senha">
+      <button onclick="trocarSenha()">Atualizar senha</button>
     </section>
 
-    <section id="exportar">
-      <button id="btn-exportar">Exportar Dados</button>
+    <section>
+      <button onclick="exportarDados()">Exportar Dados</button>
     </section>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script type="module" src="script.js"></script>
+  <script src="utils.js"></script>
+  <script src="data.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

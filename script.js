@@ -4,10 +4,12 @@ const SENHA = "1234";
 document.addEventListener("DOMContentLoaded", () => {
   const loginBtn = document.getElementById("login-btn");
   const logoutBtn = document.getElementById("logout-btn");
+  const resetBtn = document.getElementById("reset-btn");
   const checkboxes = document.querySelectorAll(".habit-check");
 
   loginBtn.addEventListener("click", login);
   logoutBtn.addEventListener("click", logout);
+  resetBtn.addEventListener("click", resetarDia);
 
   checkboxes.forEach(cb => {
     cb.addEventListener("change", () => {
@@ -39,6 +41,13 @@ function logout() {
   document.getElementById("main-screen").classList.add("hidden");
   document.getElementById("login-screen").classList.remove("hidden");
   document.getElementById("password").value = "";
+}
+
+function resetarDia() {
+  document.querySelectorAll(".habit-check").forEach(cb => cb.checked = false);
+  salvarHabitos();
+  atualizarAlerta();
+  atualizarGrafico();
 }
 
 function salvarHabitos() {

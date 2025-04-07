@@ -92,3 +92,4 @@ function mostrarHistorico() {
 document.getElementById('form-login').addEventListener('submit', login);
 document.getElementById('btn-historico').addEventListener('click', mostrarHistorico);
 
+

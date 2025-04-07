@@ -1,116 +1,60 @@
 
-const SENHA = "1234";
-
 document.addEventListener("DOMContentLoaded", () => {
-  const loginBtn = document.getElementById("login-btn");
-  const logoutBtn = document.getElementById("logout-btn");
-  const resetBtn = document.getElementById("reset-btn");
-  const checkboxes = document.querySelectorAll(".habit-check");
-
-  loginBtn.addEventListener("click", login);
-  logoutBtn.addEventListener("click", logout);
-  resetBtn.addEventListener("click", resetarDia);
-
-  checkboxes.forEach(cb => {
-    cb.addEventListener("change", () => {
-      salvarHabitos();
-      atualizarAlerta();
-      atualizarGrafico();
-    });
-  });
-
-  carregarHabitos();
-  atualizarAlerta();
-  inicializarGrafico();
+  const app = document.getElementById("app");
+  if (!localStorage.getItem("senha")) {
+    localStorage.setItem("senha", "1234");
+  }
+  app.innerHTML = `
+    <div class="container">
+      <h1>Login</h1>
+      <input id="senha" type="password" placeholder="Digite sua senha" />
+      <button onclick="login()">Entrar</button>
+    </div>
+  `;
 });
 
 function login() {
-  const senha = document.getElementById("password").value;
-  const erro = document.getElementById("login-error");
-
-  if (senha === SENHA) {
-    document.getElementById("login-screen").classList.add("hidden");
-    document.getElementById("main-screen").classList.remove("hidden");
-    erro.textContent = "";
+  const senha = document.getElementById("senha").value;
+  if (senha === localStorage.getItem("senha")) {
+    renderDashboard();
   } else {
-    erro.textContent = "Senha incorreta!";
+    alert("Senha incorreta");
   }
 }
 
-function logout() {
-  document.getElementById("main-screen").classList.add("hidden");
-  document.getElementById("login-screen").classList.remove("hidden");
-  document.getElementById("password").value = "";
+function renderDashboard() {
+  document.getElementById("app").innerHTML = `
+    <div class="container">
+      <h1>Meus Hábitos</h1>
+      <ul class="habit-list">
+        ${getHabits().map(habit => `
+          <li class="habit-item">
+            <span>${habit.nome}</span>
+            <button onclick="marcar('${habit.nome}')">✔️</button>
+          </li>
+        `).join("")}
+      </ul>
+      <button onclick="exportar()">Exportar Dados</button>
+    </div>
+  `;
 }
 
-function resetarDia() {
-  document.querySelectorAll(".habit-check").forEach(cb => cb.checked = false);
-  salvarHabitos();
-  atualizarAlerta();
-  atualizarGrafico();
+function marcar(nome) {
+  const dia = new Date().toISOString().split("T")[0];
+  const registros = JSON.parse(localStorage.getItem("registros") || "{}");
+  registros[dia] = registros[dia] || {};
+  registros[dia][nome] = true;
+  localStorage.setItem("registros", JSON.stringify(registros));
+  alert(`Hábito "${nome}" marcado para hoje!`);
 }
 
-function salvarHabitos() {
-  const habitos = {};
-  document.querySelectorAll(".habit-check").forEach(cb => {
-    habitos[cb.dataset.habit] = cb.checked;
-  });
-  localStorage.setItem("habitosHoje", JSON.stringify(habitos));
+function exportar() {
+  const registros = localStorage.getItem("registros") || "{}";
+  const blob = new Blob([registros], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "meus-habitos.json";
+  a.click();
 }
 
-function carregarHabitos() {
-  const dados = localStorage.getItem("habitosHoje");
-  if (dados) {
-    const habitos = JSON.parse(dados);
-    document.querySelectorAll(".habit-check").forEach(cb => {
-      cb.checked = !!habitos[cb.dataset.habit];
-    });
-  }
-}
-
-function atualizarAlerta() {
-  const algumNaoFeito = Array.from(document.querySelectorAll(".habit-check"))
-    .some(cb => !cb.checked);
-
-  const alerta = document.getElementById("alerta-nao-cumprido");
-  alerta.textContent = algumNaoFeito ? "Você ainda tem hábitos pendentes hoje!" : "";
-}
-
-let chart;
-
-function inicializarGrafico() {
-  const ctx = document.getElementById("habitChart").getContext("2d");
-  chart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: ["Beber Água", "Academia", "Meditação", "Leitura", "Entregar Lixo", "Limpar Cozinha"],
-      datasets: [{
-        label: "Hábitos de hoje",
-        data: pegarProgressoAtual(),
-        backgroundColor: "#333"
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 1,
-          ticks: {
-            stepSize: 1
-          }
-        }
-      }
-    }
-  });
-}
-
-function atualizarGrafico() {
-  chart.data.datasets[0].data = pegarProgressoAtual();
-  chart.update();
-}
-
-function pegarProgressoAtual() {
-  return Array.from(document.querySelectorAll(".habit-check"))
-    .map(cb => cb.checked ? 1 : 0);
-}

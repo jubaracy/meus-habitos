@@ -1,102 +1,84 @@
 // script.js
 
-import { salvarDados, carregarDados, verificarSenha, trocarSenha, inicializarDados } from './data.js';
-import { obterDataAtual, mostrarAlerta, agruparPorMes, contarFrequenciaMensal, criarElemento } from './utils.js';
+import { salvarDados, carregarDados, gerarHistoricoMensal } from './data.js';
+import { gerarGraficoMensal } from './utils.js';
 
-let dataAtual = obterDataAtual();
-let dados = carregarDados();
-
+const senhaCorreta = '1234';
 const loginContainer = document.getElementById('login-container');
 const appContainer = document.getElementById('app-container');
-const senhaInput = document.getElementById('senha');
-const btnLogin = document.getElementById('btn-login');
-const dataSpan = document.getElementById('data-atual');
-const listaHabitos = document.getElementById('lista-habitos');
+const inputSenha = document.getElementById('senha');
+const botaoEntrar = document.getElementById('entrar');
+const botaoSalvarHabitos = document.getElementById('salvar-habitos');
+const listaHabitosContainer = document.getElementById('lista-habitos');
+const selectHabito = document.getElementById('habito');
 const graficoContainer = document.getElementById('grafico');
-const historicoLista = document.getElementById('historico-lista');
-const formNovaSenha = document.getElementById('form-senha');
-const inputNovaSenha = document.getElementById('nova-senha');
-const btnTrocarSenha = document.getElementById('btn-trocar-senha');
-const graficoMensal = document.getElementById('grafico-mensal');
+const historicoContainer = document.getElementById('historico-lista');
+const alertaContainer = document.getElementById('alertas');
 
-inicializarDados();
+let dados = carregarDados();
 
-btnLogin.addEventListener('click', () => {
-  if (verificarSenha(senhaInput.value)) {
+function verificarAlertas() {
+  const naoFeitos = dados.habitos.filter(h => !h.feitoHoje);
+  alertaContainer.innerHTML = '';
+  if (naoFeitos.length) {
+    const div = document.createElement('div');
+    div.className = 'alerta';
+    div.textContent = `Você ainda não concluiu: ${naoFeitos.map(h => h.nome).join(', ')}`;
+    alertaContainer.appendChild(div);
+  }
+}
+
+function atualizarListaHabitos() {
+  listaHabitosContainer.innerHTML = '';
+  dados.habitos.forEach((habito, index) => {
+    const div = document.createElement('div');
+    const span = document.createElement('span');
+    span.textContent = habito.nome;
+    if (habito.feitoHoje) span.classList.add('feito');
+    const btn = document.createElement('button');
+    btn.textContent = habito.feitoHoje ? 'Desfazer' : 'Concluir';
+    btn.onclick = () => {
+      habito.feitoHoje = !habito.feitoHoje;
+      salvarDados(dados);
+      atualizarListaHabitos();
+      verificarAlertas();
+    };
+    div.appendChild(span);
+    div.appendChild(btn);
+    listaHabitosContainer.appendChild(div);
+  });
+  verificarAlertas();
+}
+
+function atualizarHistorico() {
+  historicoContainer.innerHTML = '';
+  const historico = gerarHistoricoMensal(dados);
+  historico.forEach(registro => {
+    const div = document.createElement('div');
+    div.textContent = `${registro.data}: ${registro.habitos.join(', ')}`;
+    historicoContainer.appendChild(div);
+  });
+}
+
+botaoEntrar.addEventListener('click', () => {
+  if (inputSenha.value === senhaCorreta) {
     loginContainer.style.display = 'none';
     appContainer.style.display = 'block';
-    exibirDashboard();
+    atualizarListaHabitos();
+    atualizarHistorico();
+    gerarGraficoMensal(dados, graficoContainer);
   } else {
-    mostrarAlerta('Senha incorreta!');
+    alert('Senha incorreta');
   }
 });
 
-function exibirDashboard() {
-  dataAtual = obterDataAtual();
-  dataSpan.textContent = dataAtual;
-  renderizarHabitos();
-  renderizarHistorico();
-  renderizarGrafico();
-}
-
-function renderizarHabitos() {
-  listaHabitos.innerHTML = '';
-  const habitosDia = dados.historico[dataAtual] || JSON.parse(JSON.stringify(dados.habitos));
-  habitosDia.forEach((habito, index) => {
-    const div = criarElemento('div');
-    const label = criarElemento('span', habito.feito ? 'feito' : '', habito.nome);
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.checked = habito.feito;
-    checkbox.addEventListener('change', () => {
-      habito.feito = checkbox.checked;
-      dados.historico[dataAtual] = habitosDia;
-      salvarDados(dados);
-      renderizarHabitos();
-    });
-    div.append(label, checkbox);
-    listaHabitos.appendChild(div);
-  });
-  dados.historico[dataAtual] = habitosDia;
-  salvarDados(dados);
-}
-
-function renderizarHistorico() {
-  historicoLista.innerHTML = '';
-  const historicoOrdenado = Object.entries(dados.historico).sort().reverse();
-  historicoOrdenado.forEach(([data, habitos]) => {
-    const li = criarElemento('li', null, `${data} - ${habitos.filter(h => h.feito).length}/${habitos.length} hábitos completos`);
-    historicoLista.appendChild(li);
-  });
-}
-
-function renderizarGrafico() {
-  graficoMensal.innerHTML = '';
-  const agrupado = agruparPorMes(dados.historico);
-  const mesAtual = dataAtual.slice(0, 7);
-  const historicoMes = agrupado[mesAtual] || [];
-  const frequencia = contarFrequenciaMensal(historicoMes, dados.habitos);
-  Object.entries(frequencia).forEach(([nome, valor]) => {
-    const linha = criarElemento('div');
-    const label = criarElemento('span', null, `${nome}:`);
-    const barra = criarElemento('div');
-    barra.style.height = '10px';
-    barra.style.backgroundColor = '#000';
-    barra.style.width = `${valor * 10}px`;
-    barra.style.margin = '4px 0';
-    linha.append(label, barra);
-    graficoMensal.appendChild(linha);
-  });
-}
-
-btnTrocarSenha.addEventListener('click', () => {
-  const novaSenha = inputNovaSenha.value.trim();
-  if (novaSenha.length < 4) {
-    mostrarAlerta('Senha muito curta.');
-    return;
+botaoSalvarHabitos.addEventListener('click', () => {
+  const novoHabito = selectHabito.value.trim();
+  if (novoHabito && !dados.habitos.some(h => h.nome === novoHabito)) {
+    dados.habitos.push({ nome: novoHabito, feitoHoje: false });
+    salvarDados(dados);
+    atualizarListaHabitos();
   }
-  trocarSenha(novaSenha);
-  mostrarAlerta('Senha atualizada com sucesso!');
-  inputNovaSenha.value = '';
 });
+
 

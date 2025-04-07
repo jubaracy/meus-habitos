@@ -1,99 +1,106 @@
 
-import { salvarDados, carregarDados, exportarComoJSON, trocarSenhaStorage, verificarSenha } from './data.js';
-import { gerarGraficoMensal, formatarData } from './utils.js';
+// script.js
+import { carregarDados, salvarDados, verificarSenha, mudarSenha } from './data.js';
+import { formatarData, gerarGraficoMensal } from './utils.js';
 
-let dataAtual = new Date();
-let senhaSalva = localStorage.getItem("senha") || "1234";
-let dados = carregarDados();
+const app = document.getElementById('app');
+const hoje = formatarData(new Date());
+const dados = carregarDados();
+const habitosPadrao = [
+  { nome: 'Beber Água', feito: false, categoria: 'Saúde' },
+  { nome: 'Academia', feito: false, categoria: 'Saúde' },
+  { nome: 'Meditação', feito: false, categoria: 'Bem-estar' },
+  { nome: 'Leitura', feito: false, categoria: 'Crescimento' },
+  { nome: 'Entregar lixo', feito: false, categoria: 'Casa' },
+  { nome: 'Limpar cozinha', feito: false, categoria: 'Casa' },
+];
 
-function login() {
-  const senhaInput = document.getElementById("senhaInput").value;
-  if (verificarSenha(senhaInput)) {
-    document.getElementById("loginSection").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    renderizarHabitos();
-  } else {
-    alert("Senha incorreta!");
-  }
+if (!dados[hoje]) dados[hoje] = JSON.parse(JSON.stringify(habitosPadrao));
+salvarDados(dados);
+
+function renderLogin() {
+  app.innerHTML = `
+    <h1>Meus Hábitos</h1>
+    <input type="password" placeholder="Digite sua senha" id="senhaInput" />
+    <button onclick="login()">Entrar</button>
+  `;
+  window.login = () => {
+    const senha = document.getElementById('senhaInput').value;
+    if (verificarSenha(senha)) renderApp();
+    else alert('Senha incorreta.');
+  };
 }
 
-function logout() {
-  location.reload();
-}
+function renderApp() {
+  const hoje = formatarData(new Date());
+  const habitosHoje = dados[hoje];
+  app.innerHTML = `
+    <h2>Hábitos de hoje (${hoje})</h2>
+    <div id="lista"></div>
+    <button onclick="salvarHabitos()">Salvar</button>
+    <button onclick="verHistorico()">Histórico</button>
+    <button onclick="verTrocarSenha()">Trocar senha</button>
+    <canvas id="graficoFrequencia" width="400" height="200"></canvas>
+  `;
 
-function renderizarHabitos() {
-  const titulo = document.getElementById("tituloData");
-  titulo.innerText = formatarData(dataAtual);
-  const container = document.getElementById("habitosContainer");
-  container.innerHTML = "";
-  const habitosHoje = dados[formatarData(dataAtual)] || [];
-
-  habitosHoje.forEach((habito, index) => {
-    const div = document.createElement("div");
-    div.className = "habito-item" + (!habito.feito ? " alerta" : "");
+  const lista = document.getElementById('lista');
+  habitosHoje.forEach((h, i) => {
+    const div = document.createElement('div');
+    div.className = 'habito';
     div.innerHTML = `
-      <span>${habito.nome} <span class="categoria">(${habito.categoria})</span></span>
-      <input type="checkbox" ${habito.feito ? "checked" : ""} onchange="toggleHabito(${index})" />
+      <label>
+        <input type="checkbox" ${h.feito ? 'checked' : ''} onchange="atualizar(${i}, this.checked)">
+        ${h.nome} <small>(${h.categoria})</small>
+      </label>
     `;
-    container.appendChild(div);
+    lista.appendChild(div);
   });
 
-  salvarDados(dados);
-}
+  window.atualizar = (i, valor) => {
+    dados[hoje][i].feito = valor;
+  };
 
-window.toggleHabito = function(index) {
-  const dia = formatarData(dataAtual);
-  dados[dia][index].feito = !dados[dia][index].feito;
-  renderizarHabitos();
-};
-
-window.mostrarAdicionarHabito = function() {
-  document.getElementById("novoHabitoForm").style.display = "block";
-};
-
-window.adicionarHabito = function() {
-  const nome = document.getElementById("novoHabitoInput").value;
-  const categoria = document.getElementById("categoriaHabitoInput").value;
-  if (!nome) return;
-
-  const dia = formatarData(dataAtual);
-  if (!dados[dia]) dados[dia] = [];
-  dados[dia].push({ nome, categoria, feito: false });
-  document.getElementById("novoHabitoInput").value = "";
-  document.getElementById("novoHabitoForm").style.display = "none";
-  renderizarHabitos();
-};
-
-window.verHistorico = function () {
-  const container = document.getElementById("historicoContainer");
-  container.style.display = container.style.display === "none" ? "block" : "none";
-  container.innerHTML = "<h3>Histórico</h3>";
-  const dias = Object.keys(dados).sort();
-  dias.forEach((dia) => {
-    const diaBox = document.createElement("div");
-    diaBox.innerHTML = `<strong>${dia}</strong><ul>` +
-      dados[dia].map(h => `<li>${h.nome} (${h.feito ? "✔️" : "❌"})</li>`).join('') +
-      "</ul>";
-    container.appendChild(diaBox);
-  });
+  window.salvarHabitos = () => {
+    salvarDados(dados);
+    alert('Hábitos salvos!');
+    renderApp();
+  };
 
   gerarGraficoMensal(dados);
-};
+}
 
-window.exportarDados = function () {
-  exportarComoJSON(dados);
-};
+function verHistorico() {
+  app.innerHTML = '<h2>Histórico do mês</h2>';
+  Object.keys(dados).sort().forEach(dia => {
+    const diaBox = document.createElement('div');
+    diaBox.innerHTML = `<h3>${dia}</h3>`;
+    dados[dia].forEach(h => {
+      const p = document.createElement('p');
+      p.textContent = `${h.nome}: ${h.feito ? '✅' : '❌'}`;
+      diaBox.appendChild(p);
+    });
+    app.appendChild(diaBox);
+  });
 
-window.trocarSenha = function () {
-  document.getElementById("senhaContainer").style.display = "block";
-};
+  const voltar = document.createElement('button');
+  voltar.textContent = 'Voltar';
+  voltar.onclick = () => renderApp();
+  app.appendChild(voltar);
+}
 
-window.salvarNovaSenha = function () {
-  const nova = document.getElementById("novaSenhaInput").value;
-  trocarSenhaStorage(nova);
-  alert("Senha atualizada.");
-  document.getElementById("senhaContainer").style.display = "none";
-};
+function verTrocarSenha() {
+  app.innerHTML = `
+    <h2>Trocar senha</h2>
+    <input type="password" id="novaSenha" placeholder="Nova senha" />
+    <button onclick="confirmarTroca()">Salvar nova senha</button>
+  `;
+  window.confirmarTroca = () => {
+    const novaSenha = document.getElementById('novaSenha').value;
+    mudarSenha(novaSenha);
+    alert('Senha atualizada!');
+    renderApp();
+  };
+}
 
-window.login = login;
-window.logout = logout;
+if (!verificarSenha('1234')) mudarSenha('1234');
+renderLogin();

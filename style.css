@@ -1,97 +1,74 @@
 
-/* style.css */
-
 body {
-  margin: 0;
   font-family: Arial, sans-serif;
   background-color: #fff;
-  color: #111;
+  color: #000;
+  margin: 0;
+  padding: 0;
 }
 
 .container {
-  max-width: 800px;
+  max-width: 600px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 2rem;
 }
 
 h1, h2 {
-  margin-bottom: 1rem;
-  color: #111;
+  color: #222;
+}
+
+input, select, button {
+  display: block;
+  margin: 10px 0;
+  padding: 10px;
+  width: 100%;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
 }
 
 button {
-  padding: 0.5rem 1rem;
-  margin: 0.5rem 0;
-  background-color: #111;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  background-color: #000;
+  color: #fff;
   cursor: pointer;
-  transition: background-color 0.3s;
+  border: none;
+  transition: 0.3s;
 }
 
 button:hover {
-  background-color: #444;
+  background-color: #333;
 }
 
-input[type="text"],
-input[type="password"],
-select {
-  width: 100%;
-  padding: 0.5rem;
-  margin-bottom: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.habito {
+.habito-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
-  background-color: #f7f7f7;
-  border-radius: 6px;
-  border: 1px solid #eee;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 5px;
+  background-color: #f9f9f9;
 }
 
-.habito.pendente {
-  border-left: 4px solid #e74c3c;
+.categoria {
+  font-size: 0.9rem;
+  color: #666;
 }
 
-.habito.feito {
-  border-left: 4px solid #2ecc71;
-}
-
-.historico {
-  margin-top: 2rem;
+.alerta {
+  background-color: #ffe0e0;
 }
 
 .grafico {
+  margin-top: 20px;
   width: 100%;
-  margin-top: 1rem;
+  height: 300px;
 }
 
 @media (max-width: 600px) {
   .container {
-    padding: 0.5rem;
+    padding: 1rem;
   }
-
-  h1 {
-    font-size: 1.5rem;
+  input, select, button {
+    font-size: 0.9rem;
   }
-
-  button {
-    width: 100%;
-  }
-}
-
-.link {
-  color: #007bff;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.link:hover {
-  color: #0056b3;
 }

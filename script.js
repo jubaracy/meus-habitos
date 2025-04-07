@@ -41,8 +41,9 @@ function mostrarHabitos(data, dados) {
   dados[data].forEach((habito, index) => {
     const div = document.createElement('div');
     div.innerHTML = `
-      <span class="${habito.feito ? 'feito' : ''}">${habito.nome}</span>
+      <span class="${habito.feito ? 'feito' : ''}">${habito.nome} (${habito.categoria || 'Sem categoria'})</span>
       <button onclick="alternarHabito('${data}', ${index})">${habito.feito ? 'Desfazer' : 'Feito'}</button>
+      <button onclick="removerHabito('${data}', ${index})">Remover</button>
     `;
     container.appendChild(div);
   });
@@ -52,6 +53,14 @@ function mostrarHabitos(data, dados) {
 function alternarHabito(data, index) {
   const dados = carregarDados();
   dados[data][index].feito = !dados[data][index].feito;
+  salvarDados(dados);
+  mostrarHabitos(data, dados);
+  atualizarResumoMensal(dados);
+}
+
+function removerHabito(data, index) {
+  const dados = carregarDados();
+  dados[data].splice(index, 1);
   salvarDados(dados);
   mostrarHabitos(data, dados);
   atualizarResumoMensal(dados);
@@ -89,7 +98,23 @@ function mostrarHistorico() {
   });
 }
 
+function adicionarHabito() {
+  const nome = document.getElementById('novo-habito').value.trim();
+  const categoria = document.getElementById('categoria-habito').value.trim();
+  if (!nome) return;
+
+  const hoje = new Date().toISOString().split('T')[0];
+  const dados = carregarDados();
+  if (!dados[hoje]) dados[hoje] = [];
+  dados[hoje].push({ nome, feito: false, categoria });
+  salvarDados(dados);
+  mostrarHabitos(hoje, dados);
+  atualizarResumoMensal(dados);
+  document.getElementById('novo-habito').value = '';
+  document.getElementById('categoria-habito').value = '';
+}
+
 document.getElementById('form-login').addEventListener('submit', login);
 document.getElementById('btn-historico').addEventListener('click', mostrarHistorico);
-
+document.getElementById('btn-adicionar-habito').addEventListener('click', adicionarHabito);
 

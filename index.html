@@ -1,15 +1,66 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meus Hábitos</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="app"></div>
-  <script src="data.js"></script>
-  <script src="utils.js"></script>
-  <script src="script.js"></script>
+  <div id="login-container">
+    <h1>Meus Hábitos</h1>
+    <input type="password" id="senha" placeholder="Digite sua senha" />
+    <button id="entrar">Entrar</button>
+    <p id="erro-senha"></p>
+  </div>
+
+  <div id="app-container" style="display: none">
+    <header>
+      <h2>Meus Hábitos</h2>
+      <button id="btn-logout">Sair</button>
+    </header>
+
+    <section id="habitos-dia">
+      <h3>Hábitos de Hoje</h3>
+      <div id="lista-habitos"></div>
+    </section>
+
+    <section id="historico">
+      <h3>Histórico</h3>
+      <div id="lista-historico"></div>
+    </section>
+
+    <section id="grafico">
+      <h3>Frequência Mensal</h3>
+      <canvas id="graficoFrequencia" width="400" height="200"></canvas>
+    </section>
+
+    <section id="editar-habitos">
+      <h3>Editar Hábitos</h3>
+      <input type="text" id="novo-habito" placeholder="Novo hábito" />
+      <select id="categoria-habito">
+        <option value="Saúde">Saúde</option>
+        <option value="Casa">Casa</option>
+        <option value="Pessoal">Pessoal</option>
+      </select>
+      <button id="btn-adicionar-habito">Adicionar</button>
+      <ul id="habitos-existentes"></ul>
+    </section>
+
+    <section id="senha">
+      <h3>Trocar Senha</h3>
+      <input type="password" id="senha-atual" placeholder="Senha atual" />
+      <input type="password" id="nova-senha" placeholder="Nova senha" />
+      <button id="btn-trocar-senha">Atualizar Senha</button>
+      <p id="mensagem-senha"></p>
+    </section>
+
+    <section id="exportar">
+      <button id="btn-exportar">Exportar Dados</button>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>

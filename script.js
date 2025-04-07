@@ -1,178 +1,99 @@
 
-// script.js
-import { formatDate, getAllDaysOfMonth, getMonthName } from './utils.js';
-import {
-  loadHabits,
-  saveHabits,
-  toggleHabitDone,
-  getPassword,
-  setPassword,
-  checkLogin,
-  loadProgress,
-  saveProgress,
-  exportData
-} from './data.js';
+import { salvarDados, carregarDados, exportarComoJSON, trocarSenhaStorage, verificarSenha } from './data.js';
+import { gerarGraficoMensal, formatarData } from './utils.js';
 
-const app = document.getElementById('app');
+let dataAtual = new Date();
+let senhaSalva = localStorage.getItem("senha") || "1234";
+let dados = carregarDados();
 
-function renderLogin() {
-  app.innerHTML = `
-    <h1>Meus Hábitos</h1>
-    <h2>Login</h2>
-    <input type="password" id="loginPassword" placeholder="Senha" />
-    <button onclick="handleLogin()">Entrar</button>
-  `;
-  window.handleLogin = () => {
-    const pw = document.getElementById('loginPassword').value;
-    if (checkLogin(pw)) {
-      renderMain();
-    } else {
-      alert('Senha incorreta.');
-    }
-  };
+function login() {
+  const senhaInput = document.getElementById("senhaInput").value;
+  if (verificarSenha(senhaInput)) {
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    renderizarHabitos();
+  } else {
+    alert("Senha incorreta!");
+  }
 }
 
-function renderMain() {
-  app.innerHTML = `
-    <nav>
-      <button onclick="renderMain()">Hoje</button>
-      <button onclick="renderHistory()">Histórico</button>
-      <button onclick="renderStats()">Gráfico</button>
-      <button onclick="renderSettings()">Configurações</button>
-    </nav>
-    <h1>Hábitos de Hoje (${formatDate(new Date())})</h1>
-    <div id="habits"></div>
-  `;
-
-  const habits = loadHabits();
-  const progress = loadProgress();
-  const today = formatDate(new Date());
-  const habitsContainer = document.getElementById('habits');
-
-  Object.keys(habits).forEach(category => {
-    const div = document.createElement('div');
-    div.className = 'category';
-    div.innerHTML = `<h2>${category}</h2>`;
-
-    habits[category].forEach(habit => {
-      const isDone = progress[today]?.includes(habit);
-      const habitDiv = document.createElement('div');
-      habitDiv.className = `habit${isDone ? ' done' : ''}`;
-      habitDiv.innerHTML = `
-        <span>${habit}</span>
-        <button onclick="toggleDone('${habit}')">
-          ${isDone ? 'Desfazer' : 'Concluir'}
-        </button>
-      `;
-      div.appendChild(habitDiv);
-    });
-
-    habitsContainer.appendChild(div);
-  });
-
-  window.toggleDone = (habit) => {
-    toggleHabitDone(habit);
-    renderMain();
-  };
+function logout() {
+  location.reload();
 }
 
-function renderHistory() {
-  const habits = loadHabits();
-  const progress = loadProgress();
-  const today = new Date();
-  const days = getAllDaysOfMonth(today.getFullYear(), today.getMonth());
+function renderizarHabitos() {
+  const titulo = document.getElementById("tituloData");
+  titulo.innerText = formatarData(dataAtual);
+  const container = document.getElementById("habitosContainer");
+  container.innerHTML = "";
+  const habitosHoje = dados[formatarData(dataAtual)] || [];
 
-  app.innerHTML = `
-    <nav>
-      <button onclick="renderMain()">Hoje</button>
-      <button onclick="renderHistory()">Histórico</button>
-      <button onclick="renderStats()">Gráfico</button>
-      <button onclick="renderSettings()">Configurações</button>
-    </nav>
-    <h1>Histórico de ${getMonthName(today.getMonth())}</h1>
-    <div id="history"></div>
-  `;
-
-  const container = document.getElementById('history');
-  days.forEach(day => {
-    const dateStr = formatDate(day);
-    const list = progress[dateStr] || [];
-    const div = document.createElement('div');
-    div.className = 'history-entry';
-    div.innerHTML = `<strong>${dateStr}:</strong> ${list.join(', ') || 'Nenhum hábito concluído'}`;
-    container.appendChild(div);
-  });
-}
-
-function renderStats() {
-  const progress = loadProgress();
-  const today = new Date();
-  const days = getAllDaysOfMonth(today.getFullYear(), today.getMonth());
-  const freq = {};
-  days.forEach(day => {
-    const dateStr = formatDate(day);
-    (progress[dateStr] || []).forEach(habit => {
-      freq[habit] = (freq[habit] || 0) + 1;
-    });
-  });
-
-  app.innerHTML = `
-    <nav>
-      <button onclick="renderMain()">Hoje</button>
-      <button onclick="renderHistory()">Histórico</button>
-      <button onclick="renderStats()">Gráfico</button>
-      <button onclick="renderSettings()">Configurações</button>
-    </nav>
-    <h1>Gráfico de Frequência</h1>
-    <div id="graph"></div>
-  `;
-
-  const container = document.getElementById('graph');
-  Object.entries(freq).forEach(([habit, count]) => {
-    const div = document.createElement('div');
+  habitosHoje.forEach((habito, index) => {
+    const div = document.createElement("div");
+    div.className = "habito-item" + (!habito.feito ? " alerta" : "");
     div.innerHTML = `
-      <strong>${habit}</strong>
-      <div class="graph-bar">
-        <div class="graph-bar-fill" style="width: ${count * 10}px"></div>
-      </div>
+      <span>${habito.nome} <span class="categoria">(${habito.categoria})</span></span>
+      <input type="checkbox" ${habito.feito ? "checked" : ""} onchange="toggleHabito(${index})" />
     `;
     container.appendChild(div);
   });
+
+  salvarDados(dados);
 }
 
-function renderSettings() {
-  app.innerHTML = `
-    <nav>
-      <button onclick="renderMain()">Hoje</button>
-      <button onclick="renderHistory()">Histórico</button>
-      <button onclick="renderStats()">Gráfico</button>
-      <button onclick="renderSettings()">Configurações</button>
-    </nav>
-    <h1>Configurações</h1>
-    <h2>Trocar senha</h2>
-    <input type="password" id="newPassword" placeholder="Nova senha" />
-    <button onclick="updatePassword()">Atualizar senha</button>
-    <h2>Exportar dados</h2>
-    <button onclick="exportData()">Exportar</button>
-  `;
+window.toggleHabito = function(index) {
+  const dia = formatarData(dataAtual);
+  dados[dia][index].feito = !dados[dia][index].feito;
+  renderizarHabitos();
+};
 
-  window.updatePassword = () => {
-    const pw = document.getElementById('newPassword').value;
-    if (pw.length >= 3) {
-      setPassword(pw);
-      alert('Senha atualizada!');
-    } else {
-      alert('A senha deve ter pelo menos 3 caracteres.');
-    }
-  };
-}
+window.mostrarAdicionarHabito = function() {
+  document.getElementById("novoHabitoForm").style.display = "block";
+};
 
-// Inicialização
-if (getPassword()) {
-  renderLogin();
-} else {
-  const defaultPw = prompt('Defina uma senha para começar:');
-  setPassword(defaultPw);
-  renderMain();
-}
+window.adicionarHabito = function() {
+  const nome = document.getElementById("novoHabitoInput").value;
+  const categoria = document.getElementById("categoriaHabitoInput").value;
+  if (!nome) return;
 
+  const dia = formatarData(dataAtual);
+  if (!dados[dia]) dados[dia] = [];
+  dados[dia].push({ nome, categoria, feito: false });
+  document.getElementById("novoHabitoInput").value = "";
+  document.getElementById("novoHabitoForm").style.display = "none";
+  renderizarHabitos();
+};
+
+window.verHistorico = function () {
+  const container = document.getElementById("historicoContainer");
+  container.style.display = container.style.display === "none" ? "block" : "none";
+  container.innerHTML = "<h3>Histórico</h3>";
+  const dias = Object.keys(dados).sort();
+  dias.forEach((dia) => {
+    const diaBox = document.createElement("div");
+    diaBox.innerHTML = `<strong>${dia}</strong><ul>` +
+      dados[dia].map(h => `<li>${h.nome} (${h.feito ? "✔️" : "❌"})</li>`).join('') +
+      "</ul>";
+    container.appendChild(diaBox);
+  });
+
+  gerarGraficoMensal(dados);
+};
+
+window.exportarDados = function () {
+  exportarComoJSON(dados);
+};
+
+window.trocarSenha = function () {
+  document.getElementById("senhaContainer").style.display = "block";
+};
+
+window.salvarNovaSenha = function () {
+  const nova = document.getElementById("novaSenhaInput").value;
+  trocarSenhaStorage(nova);
+  alert("Senha atualizada.");
+  document.getElementById("senhaContainer").style.display = "none";
+};
+
+window.login = login;
+window.logout = logout;

@@ -1,16 +1,25 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meus Hábitos</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meus Hábitos</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <main>
-        <h1>Bem-vindo ao Meus Hábitos</h1>
-        <p>Seu app de controle de hábitos está em construção.</p>
-    </main>
+  <div id="login-screen" class="screen">
+    <h1>Meus Hábitos</h1>
+    <input type="password" id="password" placeholder="Digite sua senha" />
+    <button onclick="login()">Entrar</button>
+    <p id="login-error" class="erro"></p>
+  </div>
+
+  <div id="main-screen" class="screen hidden">
+    <h2>Olá! Aqui estão seus hábitos:</h2>
+    <button onclick="logout()">Sair</button>
+    <!-- Aqui depois vai entrar a lista de hábitos -->
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>

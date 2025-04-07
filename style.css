@@ -1,3 +1,4 @@
+/* style.css */
 
 body {
   font-family: Arial, sans-serif;
@@ -7,62 +8,33 @@ body {
   padding: 0;
 }
 
+h1, h2 {
+  margin-top: 0;
+}
+
 #login-container,
 #app-container {
-  max-width: 600px;
-  margin: 40px auto;
   padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.05);
-  background-color: #f9f9f9;
+  max-width: 600px;
+  margin: auto;
 }
 
 input, button, select {
-  display: block;
-  width: 100%;
-  margin: 10px 0;
   padding: 10px;
-  font-size: 16px;
+  margin: 5px 0;
   border: 1px solid #ccc;
   border-radius: 5px;
+  font-size: 16px;
 }
 
 button {
-  background-color: #000;
-  color: #fff;
+  background-color: #333;
+  color: white;
   cursor: pointer;
-  transition: background-color 0.2s;
 }
 
 button:hover {
-  background-color: #333;
-}
-
-h1, h2, h3 {
-  text-align: center;
-}
-
-section {
-  margin: 30px 0;
-}
-
-.alerta {
-  background-color: #ffe5e5;
-  border: 1px solid #cc0000;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  color: #cc0000;
-}
-
-#lista-habitos div {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  margin-bottom: 5px;
-  border-bottom: 1px solid #ccc;
+  background-color: #555;
 }
 
 .feito {
@@ -70,13 +42,33 @@ section {
   color: gray;
 }
 
+#lista-habitos > div {
+  margin: 10px 0;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+#alerta {
+  margin-top: 20px;
+  font-weight: bold;
+  color: red;
+}
+
+#grafico-mensal div,
+#historico div {
+  margin: 5px 0;
+  padding: 5px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
 @media (max-width: 600px) {
-  body, input, button, select {
+  body {
     font-size: 14px;
   }
-  #login-container, #app-container {
-    margin: 20px 10px;
-    padding: 15px;
+  input, button, select {
+    width: 100%;
   }
 }
 

@@ -1,64 +1,38 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meus Hábitos</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <div id="login-container">
     <h1>Login</h1>
-    <input type="password" id="senha" placeholder="Digite a senha">
-    <button onclick="login()">Entrar</button>
+    <form id="form-login">
+      <input type="password" id="senha" placeholder="Digite a senha">
+      <button type="submit">Entrar</button>
+    </form>
   </div>
 
-  <div id="app-container" style="display:none">
+  <div id="app-container" style="display: none">
     <h1>Meus Hábitos</h1>
 
-    <section>
-      <h2>Hábitos de hoje</h2>
-      <div id="alerta"></div>
-      <div id="lista-habitos"></div>
-      <button onclick="salvarHoje()">Salvar dia</button>
-    </section>
+    <div id="alerta"></div>
 
-    <section>
-      <h2>Histórico</h2>
-      <div id="historico"></div>
-    </section>
+    <input type="text" id="novo-habito" placeholder="Novo hábito">
+    <input type="text" id="categoria-habito" placeholder="Categoria">
+    <button id="btn-adicionar-habito">Adicionar</button>
 
-    <section>
-      <h2>Gráfico mensal</h2>
-      <canvas id="grafico"></canvas>
-    </section>
+    <div id="lista-habitos"></div>
 
-    <section>
-      <h2>Editar hábitos</h2>
-      <input type="text" id="novo-habito" placeholder="Novo hábito">
-      <select id="categoria-habito">
-        <option value="Saúde">Saúde</option>
-        <option value="Casa">Casa</option>
-        <option value="Pessoal">Pessoal</option>
-      </select>
-      <button onclick="adicionarHabito()">Adicionar</button>
-      <div id="editar-habitos"></div>
-    </section>
+    <h2>Resumo Mensal</h2>
+    <div id="grafico-mensal"></div>
 
-    <section>
-      <h2>Trocar senha</h2>
-      <input type="password" id="senha-antiga" placeholder="Senha atual">
-      <input type="password" id="nova-senha" placeholder="Nova senha">
-      <button onclick="trocarSenha()">Atualizar senha</button>
-    </section>
-
-    <section>
-      <button onclick="exportarDados()">Exportar Dados</button>
-    </section>
+    <button id="btn-historico">Ver Histórico</button>
+    <div id="historico"></div>
   </div>
 
-  <script src="utils.js"></script>
-  <script src="data.js"></script>
-  <script src="script.js"></script>
-</body>
-</html>
+  <script sr

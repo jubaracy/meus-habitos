@@ -1,26 +1,25 @@
 
-export function salvarDados(dados) {
-  localStorage.setItem("dados", JSON.stringify(dados));
+// data.js
+
+const STORAGE_KEY = 'habitos_dia';
+const SENHA_KEY = 'senha_app';
+
+export function salvarDados(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
 export function carregarDados() {
-  return JSON.parse(localStorage.getItem("dados")) || {};
+  return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 }
 
-export function exportarComoJSON(dados) {
-  const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "meus-habitos.json";
-  a.click();
-  URL.revokeObjectURL(url);
+export function salvarSenha(senha) {
+  localStorage.setItem(SENHA_KEY, senha);
 }
 
-export function trocarSenhaStorage(novaSenha) {
-  localStorage.setItem("senha", novaSenha);
+export function verificarSenha(senha) {
+  return localStorage.getItem(SENHA_KEY) === senha;
 }
 
-export function verificarSenha(senhaDigitada) {
-  return senhaDigitada === (localStorage.getItem("senha") || "1234");
+export function mudarSenha(novaSenha) {
+  salvarSenha(novaSenha);
 }

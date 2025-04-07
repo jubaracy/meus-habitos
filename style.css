@@ -5,99 +5,93 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   background-color: #fff;
-  color: #000;
+  color: #111;
 }
 
-#app {
-  padding: 20px;
+.container {
   max-width: 800px;
-  margin: auto;
+  margin: 0 auto;
+  padding: 1rem;
 }
 
-h1, h2, h3 {
+h1, h2 {
+  margin-bottom: 1rem;
   color: #111;
 }
 
 button {
-  background-color: #333;
+  padding: 0.5rem 1rem;
+  margin: 0.5rem 0;
+  background-color: #111;
   color: white;
-  padding: 10px 16px;
-  margin: 5px 0;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 button:hover {
-  background-color: #555;
+  background-color: #444;
 }
 
-input, select {
-  padding: 8px;
-  margin: 5px 0 10px 0;
+input[type="text"],
+input[type="password"],
+select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
   border: 1px solid #ccc;
   border-radius: 4px;
-  width: 100%;
-  box-sizing: border-box;
 }
 
-.habit {
+.habito {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f5f5f5;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 4px;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  background-color: #f7f7f7;
+  border-radius: 6px;
+  border: 1px solid #eee;
 }
 
-.habit.done {
-  background-color: #d1ffd1;
-  text-decoration: line-through;
+.habito.pendente {
+  border-left: 4px solid #e74c3c;
 }
 
-.category {
-  margin-bottom: 20px;
+.habito.feito {
+  border-left: 4px solid #2ecc71;
 }
 
-.graph-bar {
-  height: 20px;
-  background-color: #ccc;
-  margin: 4px 0;
-  position: relative;
+.historico {
+  margin-top: 2rem;
 }
 
-.graph-bar-fill {
-  background-color: #333;
-  height: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-
-.history-entry {
-  padding: 8px;
-  border-bottom: 1px solid #ddd;
-}
-
-nav {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
+.grafico {
+  width: 100%;
+  margin-top: 1rem;
 }
 
 @media (max-width: 600px) {
-  body {
-    font-size: 14px;
+  .container {
+    padding: 0.5rem;
   }
 
-  button, input, select {
-    font-size: 14px;
+  h1 {
+    font-size: 1.5rem;
   }
 
-  .habit {
-    flex-direction: column;
-    align-items: flex-start;
+  button {
+    width: 100%;
   }
+}
+
+.link {
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.link:hover {
+  color: #0056b3;
 }

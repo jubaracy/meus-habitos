@@ -1,38 +1,39 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meus Hábitos</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-  <div id="login-container">
-    <h1>Login</h1>
-    <form id="form-login">
-      <input type="password" id="senha" placeholder="Digite a senha">
-      <button type="submit">Entrar</button>
-    </form>
-  </div>
-
-  <div id="app-container" style="display: none">
+  <div class="container">
     <h1>Meus Hábitos</h1>
 
-    <div id="alerta"></div>
+    <div id="login-container" class="card">
+      <h2>Login</h2>
+      <input type="password" id="senha" placeholder="Digite sua senha" />
+      <button id="btnEntrar">Entrar</button>
+      <p id="erro-login" class="erro"></p>
+    </div>
 
-    <input type="text" id="novo-habito" placeholder="Novo hábito">
-    <input type="text" id="categoria-habito" placeholder="Categoria">
-    <button id="btn-adicionar-habito">Adicionar</button>
+    <div id="app-container" class="hidden">
+      <div id="habitos-container"></div>
 
-    <div id="lista-habitos"></div>
+      <div class="acoes">
+        <button id="btnSalvar">Salvar</button>
+        <button id="btnHistorico">Ver Histórico</button>
+        <button id="btnEditar">Editar Hábitos</button>
+        <button id="btnExportar">Exportar Dados</button>
+        <button id="btnTrocarSenha">Trocar Senha</button>
+      </div>
 
-    <h2>Resumo Mensal</h2>
-    <div id="grafico-mensal"></div>
-
-    <button id="btn-historico">Ver Histórico</button>
-    <div id="historico"></div>
+      <div id="historico-container" class="hidden"></div>
+      <div id="editar-container" class="hidden"></div>
+      <div id="grafico-container" class="hidden"></div>
+    </div>
   </div>
 
-  <script sr
+  <script type="module" src="script.js"></script>
+</body>
+</html>

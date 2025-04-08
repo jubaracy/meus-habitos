@@ -1,6 +1,4 @@
-// data.js
-
-const habitosBase = [
+export const habitosBase = [
   { nome: 'Beber água', feito: false, categoria: 'Saúde' },
   { nome: 'Academia', feito: false, categoria: 'Saúde' },
   { nome: 'Meditação', feito: false, categoria: 'Bem-estar' },
@@ -8,5 +6,3 @@ const habitosBase = [
   { nome: 'Entregar lixo', feito: false, categoria: 'Casa' },
   { nome: 'Limpar cozinha', feito: false, categoria: 'Casa' }
 ];
-
-export { habitosBase };
